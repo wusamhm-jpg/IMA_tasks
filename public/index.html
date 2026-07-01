@@ -1,0 +1,163 @@
+<!DOCTYPE html>
+<html lang="ar" dir="rtl">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>ima | إدارة المهام</title>
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link href="https://fonts.googleapis.com/css2?family=Manrope:wght@500;700;800&family=Cairo:wght@400;500;600;700&display=swap" rel="stylesheet">
+<link rel="stylesheet" href="style.css">
+</head>
+<body>
+
+<div class="app">
+
+  <!-- الشريط الجانبي -->
+  <aside class="sidebar">
+    <div class="brand">
+      <div class="brand-mark">ima</div>
+      <span class="brand-sub">إدارة المهام</span>
+    </div>
+
+    <nav class="nav">
+      <button class="nav-item active" data-filter="all">
+        <span>كل المهام</span><span class="count" id="count-all">0</span>
+      </button>
+      <button class="nav-item" data-filter="pending">
+        <span>قيد الانتظار</span><span class="count" id="count-pending">0</span>
+      </button>
+      <button class="nav-item" data-filter="in_progress">
+        <span>قيد التنفيذ</span><span class="count" id="count-inprogress">0</span>
+      </button>
+      <button class="nav-item" data-filter="done">
+        <span>مكتملة</span><span class="count" id="count-done">0</span>
+      </button>
+      <button class="nav-item" data-filter="overdue">
+        <span>متأخرة</span><span class="count danger" id="count-overdue">0</span>
+      </button>
+    </nav>
+
+    <div class="categories-block">
+      <div class="categories-header">
+        <h4>التصنيفات</h4>
+        <button id="addCategoryBtn" class="icon-btn" title="إضافة تصنيف">+</button>
+      </div>
+      <ul id="categoryList" class="category-list"></ul>
+    </div>
+  </aside>
+
+  <!-- المحتوى الرئيسي -->
+  <main class="main">
+    <header class="topbar">
+      <div class="search-wrap">
+        <input type="text" id="searchInput" placeholder="ابحث عن مهمة...">
+      </div>
+      <button id="newTaskBtn" class="btn-primary">+ مهمة جديدة</button>
+    </header>
+
+    <section class="stats-row">
+      <div class="stat-card">
+        <span class="stat-num" id="statTotal">0</span>
+        <span class="stat-label">إجمالي المهام</span>
+      </div>
+      <div class="stat-card">
+        <span class="stat-num" id="statDone">0</span>
+        <span class="stat-label">مكتملة</span>
+      </div>
+      <div class="stat-card">
+        <span class="stat-num" id="statPending">0</span>
+        <span class="stat-label">قيد الانتظار</span>
+      </div>
+      <div class="stat-card danger">
+        <span class="stat-num" id="statOverdue">0</span>
+        <span class="stat-label">متأخرة</span>
+      </div>
+    </section>
+
+    <section class="tasks-wrap">
+      <div id="tasksList" class="tasks-list"></div>
+      <p id="emptyState" class="empty-state" hidden>لا توجد مهام حالياً. أضف مهمة جديدة للبدء.</p>
+    </section>
+  </main>
+</div>
+
+<!-- نموذج إضافة/تعديل مهمة -->
+<div id="taskModal" class="modal-overlay" hidden>
+  <div class="modal">
+    <div class="modal-header">
+      <h3 id="modalTitle">مهمة جديدة</h3>
+      <button class="icon-btn" id="closeModalBtn">✕</button>
+    </div>
+    <form id="taskForm">
+      <input type="hidden" id="taskId">
+
+      <label>عنوان المهمة</label>
+      <input type="text" id="taskTitle" required placeholder="مثال: تجهيز عرض المشروع">
+
+      <label>الوصف</label>
+      <textarea id="taskDescription" rows="3" placeholder="تفاصيل إضافية..."></textarea>
+
+      <div class="form-row">
+        <div class="form-col">
+          <label>التصنيف</label>
+          <select id="taskCategory"></select>
+        </div>
+        <div class="form-col">
+          <label>الأولوية</label>
+          <select id="taskPriority">
+            <option value="low">منخفضة</option>
+            <option value="medium" selected>متوسطة</option>
+            <option value="high">عالية</option>
+          </select>
+        </div>
+      </div>
+
+      <div class="form-row">
+        <div class="form-col">
+          <label>تاريخ الاستحقاق</label>
+          <input type="date" id="taskDueDate">
+        </div>
+        <div class="form-col">
+          <label>الحالة</label>
+          <select id="taskStatus">
+            <option value="pending">قيد الانتظار</option>
+            <option value="in_progress">قيد التنفيذ</option>
+            <option value="done">مكتملة</option>
+          </select>
+        </div>
+      </div>
+
+      <div class="modal-actions">
+        <button type="button" id="deleteTaskBtn" class="btn-danger" hidden>حذف</button>
+        <button type="submit" class="btn-primary">حفظ المهمة</button>
+      </div>
+    </form>
+  </div>
+</div>
+
+<!-- نموذج إضافة تصنيف -->
+<div id="categoryModal" class="modal-overlay" hidden>
+  <div class="modal modal-sm">
+    <div class="modal-header">
+      <h3>تصنيف جديد</h3>
+      <button class="icon-btn" id="closeCategoryModalBtn">✕</button>
+    </div>
+    <form id="categoryForm">
+      <label>اسم التصنيف</label>
+      <input type="text" id="categoryName" required placeholder="مثال: مشاريع">
+      <label>اللون</label>
+      <input type="color" id="categoryColor" value="#0EA5A4">
+      <div class="modal-actions">
+        <button type="submit" class="btn-primary">إضافة التصنيف</button>
+      </div>
+    </form>
+  </div>
+</div>
+
+<!-- منطقة التنبيهات -->
+<div id="toastContainer" class="toast-container"></div>
+
+<script src="app.js"></script>
+</body>
+</html>
